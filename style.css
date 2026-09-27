@@ -49,7 +49,7 @@ body{
 .signal-bar{
     width: 8px;
     border-radius: 1px;
-    transition: background 0.4s, height 0,3s;
+    transition: background 0.4s, height 0.3s;
 }
 
 .vu-bar{
@@ -88,8 +88,9 @@ body{
 @keyframes fadeInLine{
     from{ opacity: 0; transform: translateX(-4px);}
     to{opacity: 1; transform: translateX(0);}
+}
 
-.glitch.frame{
+.glitch-frame{
     animation: glitchFrame 0.15s ease 2;
 }
 
@@ -100,16 +101,52 @@ body{
 }
 
 .do-shake{
-    animation: pageShake 0.5s wase !important;
+    animation: pageShake 0.5s ease !important;
 }
 
 @keyframes pageShake{
     0%,100%{transform: translate(0,0);}
-    15%{transform: translate(0,0);}
-    30%{transform: translate(0,0);}
-    45%{transform: translate(0,0);}
-    60%{transform: translate(0,0);}
-    75%{transform: translate(0,0);}
-    90%{transform: translate(0,0);}
+    15%{transform: translate(-6px,3px);}
+    30%{transform: translate(6px,-4px);}
+    45%{transform: translate(-4px,5px);}
+    60%{transform: translate(5px,-3px);}
+    75%{transform: translate(-3px,3px);}
+    90%{transform: translate(3px,-1px);}
 }
 
+.red-pulse{
+    animation: redPulse 0.3s ease;
+}
+
+@keyframes redPulse{
+    0% {background-color: #050508;}
+    50% {background-color: #1a0000;}
+    100% {background-color: #050508;}
+}
+
+#pwr-led{
+    animation: ledPulse 2s ease-in-out infinite;
+}
+
+@keyframes ledPulse{
+    0%,100% {box-shadow: 0 0 3px #005c17; background: #00aa2a;}
+    50% {box-shadow: 0 0 8px #00ff41; background: #00ff41;}
+}
+
+#log-panel::-webkit-scrollbar { width: 2px;}
+#log-panel::-webkit-scrollbar-track { background: transparent;}
+#log-panel::-webkit-scrollbar-thumb { background: #1a2030;}
+
+#overlay-msg{
+    letter-spacing: 0.05em;
+    line-height: 1.8;
+}
+
+.freq-glitch{
+    animation: freqGlitch 0.1s step-end 4;
+}
+
+@keyframes freqGlitch{
+    0%,100%{ color: #00ff41;}
+    50%{color: #ff2020; letter-spacing: 6px;}
+}
