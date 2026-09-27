@@ -1,0 +1,66 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {scroll-behavior: smooth;}
+
+body{
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    -webkit-font-smoothing: none;
+}
+
+.crt-overlay{
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.18) 2px,
+        rgba(0,0,0,0.18) 4px
+    );
+    pointer-events: none;
+}
+
+.crt-overlay::after{
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.75) 100%);
+}
+
+.scanline-bar{
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(
+        to bottom,
+        transparent,
+        rgba(0, 255, 65, 0.04) 50%,
+        transparent
+    );
+    animation: scanline 5s linear infinite;
+    top: -10%;
+}
+
+@keyframes scanline{
+    0% {top: -10%;}
+    100%{top:110%;}
+}
+
+.signal-bar{
+    width: 8px;
+    border-radius: 1px;
+    transition: background 0.4s, height 0,3s;
+}
+
+.vu-bar{
+    width: 6px;
+    border-radius: 1px;
+    background: #005c17;
+    transition: height 0.06s ease;
+    align-self: flex-end;
+}
+
+.vu-bar.mid { background: #00aa2a;}
+.vu-bar.high { background: #00ff41;}
+.vu-bar.peak { background: #ff2020; box-shadow: 0 0 6px #ff2020;}
+
