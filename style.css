@@ -64,3 +64,52 @@ body{
 .vu-bar.high { background: #00ff41;}
 .vu-bar.peak { background: #ff2020; box-shadow: 0 0 6px #ff2020;}
 
+#tuner-thumb{
+    transition: left 0.05s linear;
+    box-shadow: 0 0 8px #00ff41;
+}
+
+.log-line{
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: #00aa2a;
+    opacity: 0;
+    animation: fadeInLine 0.3s ease forwards;
+    white-space: pre;
+    overflow: hidden;
+}
+
+.log-line.static-line {color: #1e2d1e;}
+.log-line.signal-line {color: #00ff41; text-shadow: 0 0 8px #00ff4166; }
+.log-line.warn-line {color: #ffaa00}
+.log-line.red-line {color: #ff2020; text-shadow: 0 0 8px #ff202066;}
+
+@keyframes fadeInLine{
+    from{ opacity: 0; transform: translateX(-4px);}
+    to{opacity: 1; transform: translateX(0);}
+
+.glitch.frame{
+    animation: glitchFrame 0.15s ease 2;
+}
+
+@keyframes glitchFrame{
+    0%,100% { filter: none}
+    33% { filter: hue-rotate(90deg) brightness(1.3);}
+    66% {filter: hue-rotate(-90deg) contrast(1.5)}
+}
+
+.do-shake{
+    animation: pageShake 0.5s wase !important;
+}
+
+@keyframes pageShake{
+    0%,100%{transform: translate(0,0);}
+    15%{transform: translate(0,0);}
+    30%{transform: translate(0,0);}
+    45%{transform: translate(0,0);}
+    60%{transform: translate(0,0);}
+    75%{transform: translate(0,0);}
+    90%{transform: translate(0,0);}
+}
+
