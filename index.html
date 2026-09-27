@@ -121,7 +121,30 @@
             <p class="font-mono text-dgreen text-sm tracking-widest">FM</p>
 
             <div class="flex items-end gap-1 mt-4 h-8"></div>
-              <p></p>
+              <div class="signal-bar bg-fgreen w-2" style="height:30%;" id="sig0"></div>
+              <div class="signal-bar bg-fgreen w-2" style="height:45%;" id="sig1"></div>
+              <div class="signal-bar bg-fgreen w-2" style="height:60%;" id="sig2"></div>
+              <div class="signal-bar bg-fgreen w-2" style="height:78%;" id="sig3"></div>
+              <div class="signal-bar bg-fgreen w-2" style="height:100%;" id="sig4"></div>
+        </div>
+        <p class="font=mono text-fgreen text-[10px] tracking-widest mt-1" id="signal-label">NO SIGNAL</p>
+    </div>
+
+    <div class="border-x border-border bg-panel px-5 py-4">
+        <div class="flex items-center justify-between mb-2">
+            <span class="font-mono text-ghost text-[10px]">87.5</span>
+            <span class="font-mono text-ghost textp-[10px]">108.0</span>
+        </div>
+        <div class="relative w-full h-2 bg-void border border-border rounded-none cursor-pointer" id="tuner-track">
+            <div class="absolute top-1/2 -translate-y-12 w-3 h-5 bg-green cursor-grab active: cursor-grabbing" id="tuner-thumb" style="left: 0;"></div>
+        </div>
+    </div>
+        <p class="font-mono text-ghost text-[10px] text-center mt-2">Drag to tune</p>
+    </div>
+
+    <div class="border-x border-t border-border bg-crt px-5 py-3">
+        <div class="flex items-end gap-[2px] h-8" id="vu-meter">
+
         </div>
     </div>
 </body>
