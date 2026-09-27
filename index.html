@@ -94,3 +94,18 @@
     <link rel= "stylesheet" href="style.css" />
 </head>
 
+<body class="bg-void text-green font-body min-h-screen flex flex-col items-center justify-center overflow-hidden select-none relative">
+
+    <div class= "crt-overlay pointer-events-none fixed inset-0 z-50"></div>
+    <div class= "scaline-wrap pointer-events-none fixed inset-0 z-40 overflow-hidden">
+        <div class= "scaline-bar"></div>
+    </div>
+
+    <div id= "boot-screen" class="fixed inset-0 z-30 bg-void flex flex-col items-center justify-center gap-6 px-6">
+        <p class="font-mono text-green text-5x1 animate-glow tracking-widest">DEAD AIR</p>
+        <p class="font-mono text-dgreen text-sm tracking-widest">EMERGENCY BRODCAST RECIEVER v2.1</p>
+        <div clas="w-64 h-px bg-border mt-2"></div>
+        <p class="font-mono text-fgreen text-xs tracking-widest animate-blink">[ PRESS ANY KEY TO INITIALIZE ]</p>
+        <p class="font-mono text-ghost text-xs mt-8 max-w-xs text-center leading-relaxed">WARNING: Use headphones.<br/>This experience contains sudden loud sounds.</p>
+    </div>
+</body>
