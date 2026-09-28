@@ -83,8 +83,45 @@
                 const pos= i/ VU_COUNT;
                 const noiesFloor= vuIntensity* 0.1;
                 const rand= noiesFloor+ Math.random()* vuIntensity;
-        })
-        })
+                
+                const envelope= Math.sin(pos* Math.PI)* 0.7 + 0.3;
+                const height= Math.max(4, Math.round(rand*envelope* 52));
+                bar.style.height= height+ 'px';
+
+                if(pos>0.88){
+                    bar.className= 'vu-bar peak' ;
+                } else if(pos> 0.65){
+                    bar.className= 'vi-bar high';
+                } else if(pos>0.4){
+                    bar.className= 'vu-bar mid';
+                } else {
+                    bar.className= 'vu-bar'
+                }
+            });
+            animateVU();
+        });
+    }
+
+    function setSignalStrength(level){
+        const colors= ['#005c17', '#005c17', '#00aa2a', '#00ff41', '#00ff41'];
+        sigBars.forEach((bar, i)=>{
+            bar.style.background= i< level? colors[i]: '#1e2d1e'
+        });
+        signalLabel.textContent= ['NO SIGNAL', 'WEAK', 'MODERATE', 'STRONG', 'STRONG', 'LOCKED'][Math.min(level, 5)];
+    }
+
+    function initTuner(){
+        updateFreqDisplay(FREQ_MIN);
+        
+        const onMove= (clientX) => {
+            if (!isDragging) return;
+            const rect= tunerTrack.getBoundingClientRect();
+            const pct= Math.max(0, Math.min(1, (clientX- rect.left)/ rect.width));
+            const freq=  FREQ_MIN + pct* (freq.FREQ_MAX- FREQ_MIN);
+            tunerThumb.style.left= (pct * 100)+ '%';
+            onFrequencyChange(math.round(freq*10)/ 10);
+        };
+        
     }
 
 })
