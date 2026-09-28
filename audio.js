@@ -114,7 +114,7 @@ window.SFX= (function(){
 
         const g= ctx.createGain();
         g.gain.setValueAtTime(0, now());
-        g.gain.lineatRampToValueAtTime(1.4, now() + 0.01);
+        g.gain.linearRampToValueAtTime(1.4, now() + 0.01);
         g.gain.exponentialRampToValueAtTime(0.001, now() + 0.3);
 
         const dist= ctx.createWaveShaper();
@@ -146,12 +146,12 @@ window.SFX= (function(){
 
         const g= ctx.createGain();
         g.gain.setValueAtTime(fromVol, now());
-        g.gain.lineatRampToValueAtTime(toVol, now() + durationSec);
+        g.gain.linearRampToValueAtTime(toVol, now() + durationSec);
 
         const bp= ctx.createBiquadFilter();
         bp.type= 'bandpass';
         bp.frequency.setValueAtTime(400, now());
-        bp.frequency.lineatRampToValueAtTime(2400, now()+ durationSec);
+        bp.frequency.linearRampToValueAtTime(2400, now()+ durationSec);
         bp.Q.value= 0.8;
 
         src.connect(bp);
@@ -170,7 +170,7 @@ window.SFX= (function(){
 
         const masterDroneGain= ctx.createGain();
         masterDroneGain.gain.setValueAtTime(0, now());
-        masterDroneGain.gain.lineatRampToValueAtTime(gainVal, now()+ 2.5);
+        masterDroneGain.gain.linearRampToValueAtTime(gainVal, now()+ 2.5);
         masterDroneGain.connect(masterGain);
 
         freqs.forEach(f => {
@@ -215,6 +215,60 @@ window.SFX= (function(){
     function subBass(durationSec= 4){
         resume();
         const osc= ctx.createOscillator();
+        osc.type= 'sine';
+        osc.frequency.value= 22;
+
+        const g= ctx.createGain();
+        g.gain.setValueAtTime(0, now());
+        g.gain.linearRampToValueAtTime(0.9, now()+ 0.3);
+        g.gain.setValueAtTime(0.9, now()+ durationSec- 0.5);
+        g.gain.linearRampToValueAtTime(0, now()+ durationSec);
+
+        osc.connect(g);
+        g.connect(masterGain);
+        osc.start();
+        osc.stop(now()+ durationSec+ 0.1);
+    }
+
+    function heartbeat(){
+        resume();
+
+        function beat(time, vol){
+            const osc= ctx.createOscillator();
+            const g= ctx.createGain();
+            osc.type= 'sine';
+            osc.frequency.setValueAtTime(80, time);
+            osc.frequency.exponentialRampToValueAtTime(35, time + 0.12);
+            g.gain.setValueAtTime(0, time);
+            g.gain.linearRampToValueAtTime(vol, time+ 0.01);
+            g.gain.exponentialRampToValueAtTime(0.001, time+ 0.18);
+            osc.connect(g);
+            g.connect(masterGain);
+            osc.start(time);
+            osc.stop(time+ 0.2);
+        }
+
+        const t= now();
+        beat(t, 0.7);
+        beat(t+ 0.15, 0.4);
+    }
+
+    function startHeartbeat(bpm=68){
+        stopheartbeat();
+        heartbeat();
+        const interval= (60/bpm)* 1000;
+        heartInterval= setInterval(heartbeat, interval);
+    }
+
+    function stopHeartbeat(){
+        if (heartInterval){clearInterval(heartInterval); heart=null;}
+    }
+
+    function numberBeep(index=0){
+        resume();
+        const freqs= [440, 523, 392, 349, 466, 415, 370, 494, 554, 622];
+        const freq= freqs[index% freqs.length];
+
         
     }
 })
