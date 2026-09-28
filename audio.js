@@ -269,6 +269,52 @@ window.SFX= (function(){
         const freqs= [440, 523, 392, 349, 466, 415, 370, 494, 554, 622];
         const freq= freqs[index% freqs.length];
 
+        const osc= ctx.createOscillator();
+        g.gain.setValueAtTime(0.18, now());
+        g.gain.setValueAtTime(0.18, now()+ 0.18);
+        g.gain.linearRampToValueAtTime(0.0101, now()+ 0.22);
+
+        const bp= ctx.createBiquadFilter();
+        bp.type= 'bandpass';
+        bp.frequency.value =freq;
+        bp.Q.value= 2;
+
+        osc.connect(bp);
+        bp.connect(g);
+        g.connect(masterGain);
+        osc.start();
+        osc.stop(now() + 0.25);
+    }
+
+    function breathIn(){
+        resume();
+        const buf= makeNoiseBuffer(1.2);
+        const src= ctx.createBufferSource();
+        src.buffer= buf;
+
+        const g= ctx.createGain();
+        g.gain.setValueAtTime(0, now());
+        g.gain.linearRampToValueAtTime(0.18, now()+ 0.6);
+        g.gain.linearRampToValueAtTime(0.001, now()+ 1.1);
+
+        const bp= ctx.createBiquadFilter();
+        bp.type= 'bandpass';
+        bp.frequency.value = 900;
+        bp.Q.value = 1.5;
+
+        const hp = ctx.createBiquadFilter();
+        hp.type = 'highpass';
+        hp.frequency.value= 500;
+
+        src.connect(bp);
+        bp.connect(hp);
+        hp.connect(g);
+        g.connect(masterGain);
+        src.start();
+        src.stop(now()+ 1.2);
+    }
+
+    function breatheOut(){
         
     }
 })
