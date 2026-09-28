@@ -276,5 +276,40 @@
         }, 800); 
     }
     
+    function revealHorrorText() {
+        const messages= [
+            {label: 'SIGNAL ACQUIRED', text: 'YOU TUNED IN.\n\nIT WAS WAITING FOR SOMEONE TO LITSEN.', sub: '98.6 MHz · TRANSMISSION IN PROGRESS', delay: 0},
+            {label: 'SOURCE IDENTIFIED', text: 'THE FREQUENCY HAS ALWAYS BEEN HERE.\n\nYOU JUST COULD NOT HEAR IT BEFORE.', sub: 'DURATION: 00:' + String(Math.floor(Math.random()*59) +1).padStart(2,'0')+ ':' + String(Math.floor(Math.random()*59)).padStart(2,'0'), delay: 5000 };
+            {label: 'FINAL BROADCAST', text: 'DO NOT TURN OFF THE RADIO.\n\nDO NOT CLOSE THIS TAB.\n\nIT ALDREADY KNOWS WHRE YOU ARE.', sub: 'SIGNAL WILL CONTINUE IDEFINITELY', delayl: 1000},
+        ];
+
+        messages.forEach(({label, text, sub, delay})=> {
+            setTimeout(() => {
+                $('overlay-label').textContent= label;
+                typeOverlayText(text, sub);
+                SFX.staticBurst();
+                shakeBody();
+            }, delay);
+        });
+    }
+
+    function typeOverlayText(text, sub){
+        overlayMsg.textContent='';
+        overlaySub.textContent='';
+        let i=0;
+        const iv= setInterval(()=> {
+            if(text[i] === '\n'){
+                overlayMsg.innerHTML += '<br>';
+            } else{
+                overlayMsg.textContent += text[i];
+            }
+            i++; 
+            if(i >= text.length){
+                clearInterval(iv);
+                setTimeout(() => {overlaySub.textContent= sub;}, 400);
+            }
+        }, 55);
+    }
+
     
 })
