@@ -117,6 +117,60 @@ window.SFX= (function(){
         g.gain.lineatRampToValueAtTime(1.4, now() + 0.01);
         g.gain.exponentialRampToValueAtTime(0.001, now() + 0.3);
 
-        const dist= ctx.create
+        const dist= ctx.createWaveShaper();
+        dist.curv= makeDistortionCurve(400);
+
+        src.connect(dist);
+        dist.connect(g);
+        g.connect(masterGain);
+        src.start();
+        src.stop(now()+ 0.35);
+    }
+
+    function makeDistortionCurve(amount){
+        const n = 256;
+        const curve = new Float32Array(n);
+        const deg= Math.PI/180;
+        for (let i=0; i<n; i++){
+            const x= (i*2)/ n-1;
+            curve[i]= ((3 + amount)* x* 20* deg)/ (Math.PI + amount* Math.abs(x));
+        }
+        return curve;
+    }
+
+    function staticSweep(fromVol= 0.3, toVol= 0.05, durationSec= 1.5){
+        resume();
+        const buf = makeNoiseBuffer(durationSec+ 0.5);
+        const src= ctx.createBufferSource();
+        src.buffer= buf;
+
+        const g= ctx.createGain();
+        g.gain.setValueAtTime(fromVol, now());
+        g.gain.lineatRampToValueAtTime(toVol, now() + durationSec);
+
+        const bp= ctx.createBiquadFilter();
+        bp.type= 'bandpass';
+        bp.frequency.setValueAtTime(400, now());
+        bp.frequency.lineatRampToValueAtTime(2400, now()+ durationSec);
+        bp.Q.value= 0.8;
+
+        src.connect(bp);
+        bp.connect(g);
+        g.connect(masterGain);
+        src.start();
+        src.stop(now()+ durationSec+ 0.1);
+    }
+
+    function drone(baseFreq= 55){
+        resume();
+        stopDrone();
+
+        const freqs= [baseFreq, baseFreq* 1.003, baseFreq* 0.997];
+        const gainVal= 0.12;
+
+        const masterDroneGain= ctx.createGain();
+        masterDroneGain.gain.setValueAtTime(0, now());
+        masterDroneGain.gain.lineatRampToValueAtTime(gainVal, now()+ 2.5);
+        masterDroneGain.connect(masterGain);
     }
 })
