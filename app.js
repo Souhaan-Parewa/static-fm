@@ -200,7 +200,81 @@
         }, 900);
 
         setTimeout(()=> {
-            addLog
-        })
+            addLog('', 'static-line');
+            addLog('TRANSMISSION SOURCE: UNKNOWN', 'warn-line');
+        }, numbers.length* 900+ 200);     
     }
+
+    function triggerPhase2() {
+        if (phase >=2) return;
+        phase= 2;
+
+        clientInterval(numberInterval);
+        SFX.stopDrone();
+        SFX.staticBurst();
+
+        setTimeout(() => {
+            SFX.drone(36);
+            SFX.startBreathing();
+            SFX.startHeartbeat(60);
+            SFX.subBass(5);
+
+            vuIntensity= 0.85;
+            setSignalStrength(5);
+            freqDisplay.classList.add('freq-glitch');
+            setTimeout(() => freqDisplay.classList.remove('freq-glitch'), 600);
+
+            addLog('', 'static-line');
+            addLog('SIGNAL LOCKED: 98.6 MHz', 'red-line');
+            addLog('SOURCE: [UNRESOLVABLE', 'red-line');
+            addLog('', 'static-line');
+
+            shakeBody();
+
+            const breathLines= [
+                '........',
+                '...something is breathing...',
+                '...it has been here for a while...',
+                '...it knows the signal was opened...',
+            ];
+            breathLines.forEach((line, i) => {
+                setTimeout(() => addLog(line, i> 0? 'red-line': 'static-line'), i* 2400);
+            });
+
+            setTimeout(triggerPhase3, breathLines.length* 2400+ 1000);
+        }, 400);
+    }
+
+    function triggerPhase3(){
+        if(phase>= 3) return;
+        phase= 3;
+
+        SFX.stopBreathing();
+        SFX.stopHeartbeat();
+        SFX.subBass(3);
+
+        setTimeout(() => {
+            SFX.shriek();
+            shakeBody();
+            flashBody();
+
+            setTimeout(() => {
+                SFX.drone(28);
+                SFX.startHeartbeat(110);
+
+
+                radioUI.style.transition= 'opacity 0.4s';
+                radioUI.style.opacity= '0';
+
+                setTimeout(() => {
+                    radioUI.style.display= 'none';
+                    horrorOverlay.classList.remove('hidden');
+                    horrorOverlay.classList.add('flex');
+                    revealHorrorText();
+                }, 500);
+            }, 600);
+        }, 800); 
+    }
+    
+    
 })
