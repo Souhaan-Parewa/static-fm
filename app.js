@@ -123,7 +123,7 @@
         };
 
         tunerThumb.addEventListener('mousedown', e=> {isDragging= true; e.preventDefault();});
-        tunerThumb.addEventListener('touchmove' e => onMove(e.touches[0].clientX), {passive: true});
+        tunerThumb.addEventListener('touchmove', e => onMove(e.touches[0].clientX), {passive: true});
 
         document.addEventListener('mousemove', e => onMove(e.clientX));
         document.addEventListener('touchmove', () => onMove(e.touches[0].clientX), {passive: true});
@@ -154,7 +154,53 @@
             setSignalStrength(Math.round(strength* 3)+ 1);
 
             if(phase< 1) triggerPhase1();
+        } else{
+
+            vuIntensity= 0.05+ Math.random()* 0.05;
+            setSignalStrength(0);
         }
     }
+    
+    function startRadioIdle(){
+        staticNode= SFX.static(0.2);
+        vuIntensity= 0.05;
+        setSignalStrength(0);
 
+        addLog('RECIEVER ONLINE', 'signal-line');
+        addLog('SCANNING FREQUENCIES...', 'static-line');
+        addLog('NO SIGNAL DETECTED', 'static-line');
+        addLog('--- DRAG TUNER TO SCAN ---', 'static-line');
+    }
+
+    function triggerPhase1(){
+        if (phase >= 1) return;
+        phase= 1;
+
+        SFX.staticSweep(0.2, 0.08, 1.0);
+        SFX.signalLock();
+        SFX.drone(44);
+
+        vuIntensity= 0.4;
+        setSignalStrength(2);
+
+        addLog('', 'static-line');
+        addLog('SIGNAL DETECTED...', 'warn-line');
+        addLog('UNKNOWN ORIGIN', 'warn-line');
+        addLog('', 'static-line');
+
+        let count= 0;
+        const numbers= ['SEVEN', 'FOUR', 'ONE', 'NINE', 'FIVE', 'SEVEN', 'ZERO', 'THREE'];
+        numberInterval= setInterval(()=> {
+            SFX.numberBeep(count);
+            addLog(numbers[count% numbers.length], 'signal-line');
+            count++;
+            if (count>= numbers.length* 2){
+                clearInterval(numberInterval); 
+            }
+        }, 900);
+
+        setTimeout(()=> {
+            addLog
+        })
+    }
 })
