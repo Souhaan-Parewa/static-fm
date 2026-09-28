@@ -13,13 +13,13 @@
     const overlayMsg= $('overlay-msg');
     const overlaySub= $('overlay-sub');
     const btnSquelch= $('btn-squelch');
-    const clockDisplay= $('cliockDisplay');
+    const clockDisplay= $('clockDisplay');
 
     const sigBars= [0,1,2,3,4].map(i => $('sig' + i));
 
     const FREQ_MIN= 87.5;
     const FREQ_MAX= 108.0;
-    const TARGERT_FREQ= 98.6;
+    const TARGET_FREQ= 98.6;
     const LOCK_RANGE= 0.3;
     const HARD_RANGE= 0.08;
 
@@ -37,8 +37,8 @@
 
     const VU_COUNT = 28;
 
-    document.addEventListener('keydown', bootScreen, {once: true});
-    document.addEventListener('click', bootScreen, {once: true});
+    document.addEventListener('keydown', boot, {once: true});
+    document.addEventListener('click', boot, {once: true});
 
     function boot() {
         SFX.init();
@@ -50,6 +50,7 @@
            radioUI.classList.remove('hidden')
            radioUI.classList.add('flex');
            startClock();
+           buildVU();
            initTuner();
            startRadioIdle();
         }, 600);
@@ -81,8 +82,8 @@
         vuAnimFrame= requestAnimationFrame(() => {
             vuBars.forEach((bar, i) => {
                 const pos= i/ VU_COUNT;
-                const noiesFloor= vuIntensity* 0.1;
-                const rand= noiesFloor+ Math.random()* vuIntensity;
+                const noiseFloor= vuIntensity* 0.1;
+                const rand= noiseFloor+ Math.random()* vuIntensity;
                 
                 const envelope= Math.sin(pos* Math.PI)* 0.7 + 0.3;
                 const height= Math.max(4, Math.round(rand*envelope* 52));
@@ -91,7 +92,7 @@
                 if(pos>0.88){
                     bar.className= 'vu-bar peak' ;
                 } else if(pos> 0.65){
-                    bar.className= 'vi-bar high';
+                    bar.className= 'vu-bar high';
                 } else if(pos>0.4){
                     bar.className= 'vu-bar mid';
                 } else {
@@ -117,16 +118,16 @@
             if (!isDragging) return;
             const rect= tunerTrack.getBoundingClientRect();
             const pct= Math.max(0, Math.min(1, (clientX- rect.left)/ rect.width));
-            const freq=  FREQ_MIN + pct* (freq.FREQ_MAX- FREQ_MIN);
+            const freq=  FREQ_MIN + pct* (FREQ_MAX- FREQ_MIN);
             tunerThumb.style.left= (pct * 100)+ '%';
             onFrequencyChange(Math.round(freq*10)/ 10);
         };
 
         tunerThumb.addEventListener('mousedown', e=> {isDragging= true; e.preventDefault();});
-        tunerThumb.addEventListener('touchmove', e => onMove(e.touches[0].clientX), {passive: true});
+        tunerThumb.addEventListener('touchstart', e => onMove(e.touches[0].clientX), {passive: true});
 
         document.addEventListener('mousemove', e => onMove(e.clientX));
-        document.addEventListener('touchmove', () => onMove(e.touches[0].clientX), {passive: true});
+        document.addEventListener('touchmove', e => onMove(e.touches[0].clientX), {passive: true});
 
         document.addEventListener('mouseup', ()=> {isDragging= false; });
         document.addEventListener('touchend', ()=> {isDragging= false; });
@@ -139,7 +140,7 @@
 
     function onFrequencyChange(freq){
         updateFreqDisplay(freq);
-        const dist= Math.abs(freq- TARGERT_FREQ);
+        const dist= Math.abs(freq- TARGET_FREQ);
         
         if(dist< HARD_RANGE){
             if (phase< 2) triggerPhase2();
@@ -166,7 +167,7 @@
         vuIntensity= 0.05;
         setSignalStrength(0);
 
-        addLog('RECIEVER ONLINE', 'signal-line');
+        addLog('RECEIVER ONLINE', 'signal-line');
         addLog('SCANNING FREQUENCIES...', 'static-line');
         addLog('NO SIGNAL DETECTED', 'static-line');
         addLog('--- DRAG TUNER TO SCAN ---', 'static-line');
@@ -209,7 +210,7 @@
         if (phase >=2) return;
         phase= 2;
 
-        clientInterval(numberInterval);
+        clearInterval(numberInterval);
         SFX.stopDrone();
         SFX.staticBurst();
 
@@ -226,7 +227,7 @@
 
             addLog('', 'static-line');
             addLog('SIGNAL LOCKED: 98.6 MHz', 'red-line');
-            addLog('SOURCE: [UNRESOLVABLE', 'red-line');
+            addLog('SOURCE: [UNRESOLVABLE]', 'red-line');
             addLog('', 'static-line');
 
             shakeBody();
@@ -278,9 +279,9 @@
     
     function revealHorrorText() {
         const messages= [
-            {label: 'SIGNAL ACQUIRED', text: 'YOU TUNED IN.\n\nIT WAS WAITING FOR SOMEONE TO LITSEN.', sub: '98.6 MHz · TRANSMISSION IN PROGRESS', delay: 0},
+            {label: 'SIGNAL ACQUIRED', text: 'YOU TUNED IN.\n\nIT WAS WAITING FOR SOMEONE TO LISTEN.', sub: '98.6 MHz · TRANSMISSION IN PROGRESS', delay: 0},
             {label: 'SOURCE IDENTIFIED', text: 'THE FREQUENCY HAS ALWAYS BEEN HERE.\n\nYOU JUST COULD NOT HEAR IT BEFORE.', sub: 'DURATION: 00:' + String(Math.floor(Math.random()*59) +1).padStart(2,'0')+ ':' + String(Math.floor(Math.random()*59)).padStart(2,'0'), delay: 5000 },
-            {label: 'FINAL BROADCAST', text: 'DO NOT TURN OFF THE RADIO.\n\nDO NOT CLOSE THIS TAB.\n\nIT ALDREADY KNOWS WHRE YOU ARE.', sub: 'SIGNAL WILL CONTINUE IDEFINITELY', delayl: 1000},
+            {label: 'FINAL BROADCAST', text: 'DO NOT TURN OFF THE RADIO.\n\nDO NOT CLOSE THIS TAB.\n\nIT ALREADY KNOWS WHERE YOU ARE.', sub: 'SIGNAL WILL CONTINUE INDEFINITELY', delay: 10000},
         ];
 
         messages.forEach(({label, text, sub, delay})=> {
@@ -314,7 +315,7 @@
     function addLog(text, className= ''){
         logCursor.classList.add('hidden');
         const line= document.createElement('div');
-        line.className= 'log-line'+ className;
+        line.className= 'log-line '+ className;
         line.textContent= text;
         logLines.appendChild(line);
         logLineCount++;
@@ -324,7 +325,7 @@
             if (first) logLines.removeChild(first);
         }
 
-        const Panel= $('log-panel');
+        const panel= $('log-panel');
         panel.scrollTop= panel.scrollHeight;
 
         setTimeout(() => logCursor.classList.remove('hidden'), 100);
@@ -343,7 +344,7 @@
                 tunerThumb.style.left= (pct* 100) + '%';
                 onFrequencyChange(Math.round(freq* 10)/ 10);
 
-                if(Math.abs(freq- TARGERT_FREQ)< HARD_RANGE) clearInterval(iv);
+                if(Math.abs(freq- TARGET_FREQ)< HARD_RANGE) clearInterval(iv);
             }, 50);
         },
 
