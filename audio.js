@@ -315,6 +315,44 @@ window.SFX= (function(){
     }
 
     function breatheOut(){
-        
+        resume();
+        const buf= makeNoiseBuffer(1.5);
+        const src= ctx.createBufferSource();
+        src.buffer = buf;
+
+        const g= ctx.createGain();
+        g.gain.setValueAtTime(0.14, now());
+        g.gain.linearRampToValueAtTime(0.06, now() + 1.0);
+        g.gain.linearRampToValueAtTime(0.001, now() + 1.4);
+
+        const bp= ctx.createBiquadFilter();
+        bp.type= 'bandpass';
+        bp.frequency.value=600;
+        bp.Q.value= 2;
+
+        src.connect(bp);
+        bp.connect(g);
+        g.connect(masterGain);
+        src.start();
+        src.stop(now() + 1.5);
+    }
+
+    function startBreathing(){
+        stopbreathing();
+        function cycle(){
+            breatheIn();
+            setTimeout(breatheOut, 1300);
+        }
+
+        cycle();
+        breathInterval= setInterval(cycle, 3200);
+    }
+
+    function stopbreathing(){
+        if (breathInterval){clearInterval(breathInterval); breathInterval=null;}
+    }
+
+    function shriek(){
+        resume()
     }
 })
