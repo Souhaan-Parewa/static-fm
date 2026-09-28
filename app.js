@@ -23,7 +23,7 @@
     const LOCK_RANGE= 0.3;
     const HARD_RANGE= 0.08;
 
-    let currentfreq= FREQ_MIN;
+    let currentFreq= FREQ_MIN;
     let phase= 0;
     let squelchOn= true;
     let vuAnimFrame= null;
@@ -121,7 +121,40 @@
             tunerThumb.style.left= (pct * 100)+ '%';
             onFrequencyChange(math.round(freq*10)/ 10);
         };
+
+        tunerThumb.addEventListener('mousedown', e=> {isDragging= true; e.preventDefault();});
+        tunerThumb.addEventListener('touchmove' e => onMove(e.touches[0].clientX), {passive: true});
+
+        document.addEventListener('mousemove', e => onMove(e.clientX));
+        document.addEventListener('touchmove', () => onMove(e.touches[0].clientX), {passive: true});
+
+        document.addEventListener('mouseup', ()=> {isDragging= false; });
+        document.addEventListener('touchend', ()=> {isDragging= false; });
+    }
+
+    function updateFreqDisplay(freq){
+        currentFreq= freq;
+        freqDisplay.textContent= freq.toFixed(1);
+    }
+
+    function onFrequencyChange(freq){
+        updateFreqDisplay(freq);
+        const dist= Math.abs(freq- TARGERT_FREQ);
         
+        if(dist< HARD_RANGE){
+            if (phase< 2) triggerPhase2();
+        } else if(dist< LOCK_RANGE){
+            const strength= 1- (dist/LOCK_RANGE);
+            vuIntensity= 0.1+ strength* 0.6;
+            if (staticNode){
+                staticNode.gain.gain.setTargetAtTime(
+                    0.3- strength* 0.25, SFX.init() || 0, 0.1
+                );
+            }
+            setSignalStrength(Math.round(strength* 3)+ 1);
+
+            if(phase< 1) triggerPhase1();
+        }
     }
 
 })
