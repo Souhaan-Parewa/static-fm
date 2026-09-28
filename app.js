@@ -119,7 +119,7 @@
             const pct= Math.max(0, Math.min(1, (clientX- rect.left)/ rect.width));
             const freq=  FREQ_MIN + pct* (freq.FREQ_MAX- FREQ_MIN);
             tunerThumb.style.left= (pct * 100)+ '%';
-            onFrequencyChange(math.round(freq*10)/ 10);
+            onFrequencyChange(Math.round(freq*10)/ 10);
         };
 
         tunerThumb.addEventListener('mousedown', e=> {isDragging= true; e.preventDefault();});
@@ -279,7 +279,7 @@
     function revealHorrorText() {
         const messages= [
             {label: 'SIGNAL ACQUIRED', text: 'YOU TUNED IN.\n\nIT WAS WAITING FOR SOMEONE TO LITSEN.', sub: '98.6 MHz · TRANSMISSION IN PROGRESS', delay: 0},
-            {label: 'SOURCE IDENTIFIED', text: 'THE FREQUENCY HAS ALWAYS BEEN HERE.\n\nYOU JUST COULD NOT HEAR IT BEFORE.', sub: 'DURATION: 00:' + String(Math.floor(Math.random()*59) +1).padStart(2,'0')+ ':' + String(Math.floor(Math.random()*59)).padStart(2,'0'), delay: 5000 };
+            {label: 'SOURCE IDENTIFIED', text: 'THE FREQUENCY HAS ALWAYS BEEN HERE.\n\nYOU JUST COULD NOT HEAR IT BEFORE.', sub: 'DURATION: 00:' + String(Math.floor(Math.random()*59) +1).padStart(2,'0')+ ':' + String(Math.floor(Math.random()*59)).padStart(2,'0'), delay: 5000 },
             {label: 'FINAL BROADCAST', text: 'DO NOT TURN OFF THE RADIO.\n\nDO NOT CLOSE THIS TAB.\n\nIT ALDREADY KNOWS WHRE YOU ARE.', sub: 'SIGNAL WILL CONTINUE IDEFINITELY', delayl: 1000},
         ];
 
@@ -311,5 +311,62 @@
         }, 55);
     }
 
-    
-})
+    function addLog(text, className= ''){
+        logCursor.classList.add('hidden');
+        const line= document.createElement('div');
+        line.className= 'log-line'+ className;
+        line.textContent= text;
+        logLines.appendChild(line);
+        logLineCount++;
+
+        if (logLineCount> 10){
+            const first= logLines.querySelector('.log-line');
+            if (first) logLines.removeChild(first);
+        }
+
+        const Panel= $('log-panel');
+        panel.scrollTop= panel.scrollHeight;
+
+        setTimeout(() => logCursor.classList.remove('hidden'), 100);
+    }
+
+    window.RADIO= {
+        startScan(){
+            if (phase >= 2) return;
+            addLog('SCANNING...', 'static-line');
+            let pct=0;
+            const iv= setInterval(() => {
+                pct += 0.008;
+                if (pct >= 1) pct=0;
+
+                const freq= FREQ_MIN+ pct* (FREQ_MAX- FREQ_MIN);
+                tunerThumb.style.left= (pct* 100) + '%';
+                onFrequencyChange(Math.round(freq* 10)/ 10);
+
+                if(Math.abs(freq- TARGERT_FREQ)< HARD_RANGE) clearInterval(iv);
+            }, 50);
+        },
+
+        toggleSquelch(){
+            squelchOn= !squelchOn;
+            btnSquelch.textContent= 'SQUELCH: '+ (squelchOn? 'ON' : 'OFF');
+            if (!squelchOn){
+                addLog('SQUELCH OFF — RAW SIGNAL', 'warn-line');
+                SFX.staticBurst();
+            }
+        }
+    };
+
+    function shakeBody(){
+        document.body.classList.remove('do-shake');
+        void document.body.offsetWidth;
+        document.body.classList.add('do-shake');
+        setTimeout(() => document.body.classList.remove('do-shake'), 550);
+    }
+
+    function flashBody(){
+        document.body.classList.add('red-pulse');
+        setTimeout(() => document.body.classList.remove('red-pulse'), 350);
+    }
+
+})();
