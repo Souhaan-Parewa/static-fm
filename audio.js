@@ -353,6 +353,26 @@ window.SFX= (function(){
     }
 
     function shriek(){
-        resume()
+        resume();
+
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0, now());
+        g.gain.linearRampToValueAtTime(0.85, now() + 0.04);
+        g.gain.setValueAtTime(0.85, now() + 0.6);
+        g.gain.exponentialRampToValueAtTime(0.001, now() + 1.4);
+        g.connect(masterGain);
+
+        const osc= ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(600, now());
+        osc.frequency.linearRampToValueAtTime(0.85, now() + 0.04);
+        osc.frequency.setValueAtTime(0, now() + 0.6);
+        g.gain.exponentialRampToValueAtTime(0.001, now() + 1.4);
+        g.connect(masterGain);
+
+        const osc= ctx.createOscillator();
+        osc.type = 'sawtooth';
+        
+        
     }
 })
