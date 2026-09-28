@@ -172,5 +172,49 @@ window.SFX= (function(){
         masterDroneGain.gain.setValueAtTime(0, now());
         masterDroneGain.gain.lineatRampToValueAtTime(gainVal, now()+ 2.5);
         masterDroneGain.connect(masterGain);
+
+        freqs.forEach(f => {
+            const osc= ctx.createOscillator();
+            osc.type= 'sawtooth';
+            osc.frequency.value= f;
+
+            const lfo= ctx.createOscillator();
+            const lfoGain= ctx.createGain();
+            lfo.type= 0.08 + Math.random()* 0.05;
+            lfo.frequency.value= 0.08+ Math.random()* 0.05;
+            lfoGain.gain.value= 1.2;
+            lfo.connect(lfoGain);
+            lfoGain.connect(osc.frequency);
+            lfo.start();
+
+            const lowpass= ctx.createBiquadFilter();
+            lowpass.type= 'lowpass';
+            lowpass.frequency.value= 300;
+
+            osc.connect(lowpass);
+            lowpass.type= 'lowpass';
+            osc.start();
+
+            droneNodes.push({osc, lfo, masterDroneGain});
+        });
+        return masterDroneGain;
+    }
+
+    function stopDrone(){
+        droneNodes.forEach(n =>{
+            try{
+                n.masterDroneGain.gain.setTargetAtTime(0, now(), 0.5);
+                setTimeout(()=>{
+                    try{n.osc.stop(); n.lfo.stop(); }catch(e){}
+                }, 800);
+            } catch(e) {}
+        });
+        droneNodes=[];
+    }
+
+    function subBass(durationSec= 4){
+        resume();
+        const osc= ctx.createOscillator();
+        
     }
 })
