@@ -103,12 +103,9 @@ window.SFX= (function(){
 
     function staticBurst(){
         resume();
-        const buf= makeNoiseBufferSource(0.3);
+        const buf= makeNoiseBuffer(0.3);
         const src= ctx.createBufferSource();
         src.buffer= buf;
-
-        const g= ctx.createGain();
-        g.gain.setValueAtTime(0, now());
 
         const g= ctx.createGain();
         g.gain.setValueAtTime(0, now());
@@ -186,11 +183,11 @@ window.SFX= (function(){
             lfo.start();
 
             const lowpass= ctx.createBiquadFilter();
-            lowpass.type= lowpass.connect(masterDroneGain);
+            lowpass.type= 'lowpass';
             lowpass.frequency.value= 300;
 
             osc.connect(lowpass);
-            lowpass.type= 'lowpass';
+            lowpass.connect(masterDroneGain);
             osc.start();
 
             droneNodes.push({osc, lfo, masterDroneGain});
@@ -268,9 +265,13 @@ window.SFX= (function(){
         const freq= freqs[index% freqs.length];
 
         const osc= ctx.createOscillator();
+        osc.type= 'square';
+        osc.frequency.value= freq;
+
+        const g= ctx.createGain();
         g.gain.setValueAtTime(0.18, now());
         g.gain.setValueAtTime(0.18, now()+ 0.18);
-        g.gain.linearRampToValueAtTime(0.0101, now()+ 0.22);
+        g.gain.linearRampToValueAtTime(0.001, now()+ 0.22);
 
         const bp= ctx.createBiquadFilter();
         bp.type= 'bandpass';
@@ -363,15 +364,16 @@ window.SFX= (function(){
         const osc= ctx.createOscillator();
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(600, now());
-        osc.frequency.linearRampToValueAtTime(0.85, now() + 0.04);
-        osc.frequency.setValueAtTime(0, now() + 0.6);
-        g.gain.exponentialRampToValueAtTime(0.001, now() + 1.4);
-        g.connect(masterGain);
+        osc.frequency.linearRampToValueAtTime(2200, now() + 0.08);
+        osc.frequency.linearRampToValueAtTime(900, now() + 0.5);
+        osc.frequency.linearRampToValueAtTime(1800, now()+ 0.8);
+        osc.frequency.linearRampToValueAtTime(400, now()+ 1.3);
+        
 
         const mod = ctx.createOscillator();
         const modG= ctx.createGain();
         mod.type= 'square';
-        makeDistortionCurve.frequency.value= 47;
+        mod.frequency.value= 47;
         modG.gain.value= 300;
         mod.connect(modG);
         modG.connect(osc.frequency);
@@ -393,10 +395,11 @@ window.SFX= (function(){
         times.forEach((t, i)=> {
             const osc= ctx.createOscillator();
             const g= ctx.createGain();
+            
             osc.type= 'sine';
             osc.frequency.value= freqs[i];
             g.gain.setValueAtTime(0.25, now()+ t);
-            g.gain.exponentialRampToValueAtTime(0.001, now() + 0.4);
+            g.gain.exponentialRampToValueAtTime(0.001, now() + t + 0.4);
             osc.connect(g);
             g.connect(masterGain);
             osc.start(now() + t);
@@ -407,7 +410,7 @@ window.SFX= (function(){
     function stopAll(){
         stopDrone();
         stopStatic();
-        stopheartbeat();
+        stopHeartbeat();
         stopBreathing();
         try{masterGain.gain.setTargetAtTime(0, now(), 0.3); }catch(e) {}
         setTimeout(()=> {
