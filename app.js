@@ -13,7 +13,7 @@
     const overlayMsg= $('overlay-msg');
     const overlaySub= $('overlay-sub');
     const btnSquelch= $('btn-squelch');
-    const clockDisplay= $('clockDisplay');
+    const clockDisplay= $('clock-display');
 
     const sigBars= [0,1,2,3,4].map(i => $('sig' + i));
 
