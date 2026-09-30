@@ -17,5 +17,5 @@ i made this using HTML for the barebones structure, [Tailwind CSS](tailwindcss.c
 ## how it plays
 
 - tune through the frequency and notice the unusual signals
--interact with the controls and keep an eye on the broadcast logs
--it keeps getting unusual the longer you listen it to
+- interact with the controls and keep an eye on the broadcast logs
+- it keeps getting unusual the longer you listen it to
