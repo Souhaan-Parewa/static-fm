@@ -56,7 +56,7 @@ window.SFX= (function(){
         const samples= Math.ceil(rate* durationSec);
         const buffer= ctx.createBuffer(1, samples, rate);
         const data= buffer.getChannelData(0);
-        for(let i= 0; i< samples; i==){
+        for(let i= 0; i< samples; i++){
             data[i]= Math.random()*2-1;
         }
         return buffer;
@@ -72,15 +72,12 @@ window.SFX= (function(){
         const g= ctx.createGain();
         g.gain.value= volume;
 
-        const bp1= ctx.createGain();
-        g.gain.value= volume;
-
         const bp1= ctx.createBiquadFilter();
         bp1.type= 'bandpass';
         bp1.frequency.value= 1200;
         bp1.Q.value= 0.4;
 
-        const bp2.type= ctx.createBiquadFilter();
+        const bp2= ctx.createBiquadFilter();
         bp2.type= 'highpass';
         bp2.frequency.value= 300;
 
@@ -94,7 +91,7 @@ window.SFX= (function(){
         return{src, gain: g};
     }
 
-    function stopstatic(){
+    function stopStatic(){
         staticNodes.forEach(n=> {
             try{
                 n.g.gain.setTargetAtTime(0, now(), 0.1);
@@ -106,11 +103,12 @@ window.SFX= (function(){
 
     function staticBurst(){
         resume();
-        const buf= makeNoiseBufferSource();
+        const buf= makeNoiseBufferSource(0.3);
+        const src= ctx.createBufferSource();
         src.buffer= buf;
 
-        const g= ctx.createBufferSource();
-        g.gain.setValueAtTime(1.4, now()+ 0.3);
+        const g= ctx.createGain();
+        g.gain.setValueAtTime(0, now());
 
         const g= ctx.createGain();
         g.gain.setValueAtTime(0, now());
@@ -118,7 +116,7 @@ window.SFX= (function(){
         g.gain.exponentialRampToValueAtTime(0.001, now() + 0.3);
 
         const dist= ctx.createWaveShaper();
-        dist.curv= makeDistortionCurve(400);
+        dist.curve= makeDistortionCurve(400);
 
         src.connect(dist);
         dist.connect(g);
@@ -180,7 +178,7 @@ window.SFX= (function(){
 
             const lfo= ctx.createOscillator();
             const lfoGain= ctx.createGain();
-            lfo.type= 0.08 + Math.random()* 0.05;
+            lfo.type= 'sine';
             lfo.frequency.value= 0.08+ Math.random()* 0.05;
             lfoGain.gain.value= 1.2;
             lfo.connect(lfoGain);
@@ -188,7 +186,7 @@ window.SFX= (function(){
             lfo.start();
 
             const lowpass= ctx.createBiquadFilter();
-            lowpass.type= 'lowpass';
+            lowpass.type= lowpass.connect(masterDroneGain);
             lowpass.frequency.value= 300;
 
             osc.connect(lowpass);
@@ -254,14 +252,14 @@ window.SFX= (function(){
     }
 
     function startHeartbeat(bpm=68){
-        stopheartbeat();
+        stopHeartbeat();
         heartbeat();
         const interval= (60/bpm)* 1000;
         heartInterval= setInterval(heartbeat, interval);
     }
 
     function stopHeartbeat(){
-        if (heartInterval){clearInterval(heartInterval); heart=null;}
+        if (heartInterval){clearInterval(heartInterval); heartInterval=null;}
     }
 
     function numberBeep(index=0){
@@ -286,7 +284,7 @@ window.SFX= (function(){
         osc.stop(now() + 0.25);
     }
 
-    function breathIn(){
+    function breatheIn(){
         resume();
         const buf= makeNoiseBuffer(1.2);
         const src= ctx.createBufferSource();
@@ -338,7 +336,7 @@ window.SFX= (function(){
     }
 
     function startBreathing(){
-        stopbreathing();
+        stopBreathing();
         function cycle(){
             breatheIn();
             setTimeout(breatheOut, 1300);
@@ -348,7 +346,7 @@ window.SFX= (function(){
         breathInterval= setInterval(cycle, 3200);
     }
 
-    function stopbreathing(){
+    function stopBreathing(){
         if (breathInterval){clearInterval(breathInterval); breathInterval=null;}
     }
 
@@ -370,9 +368,73 @@ window.SFX= (function(){
         g.gain.exponentialRampToValueAtTime(0.001, now() + 1.4);
         g.connect(masterGain);
 
-        const osc= ctx.createOscillator();
-        osc.type = 'sawtooth';
-        
-        
+        const mod = ctx.createOscillator();
+        const modG= ctx.createGain();
+        mod.type= 'square';
+        makeDistortionCurve.frequency.value= 47;
+        modG.gain.value= 300;
+        mod.connect(modG);
+        modG.connect(osc.frequency);
+
+        const dist= ctx.createWaveShaper();
+        dist.curve= makeDistortionCurve(600);
+
+        osc.connect(dist);
+        dist.connect(g);
+        osc.start(); osc.stop(now()+ 1.5);
+        mod.start(); mod.stop(now()+ 1.5);
     }
-})
+
+    function signalLock(){
+        resume();
+        const times=[0, 0.22, 0.44, 0.66];
+        const freqs= [220, 277, 370, 185];
+
+        times.forEach((t, i)=> {
+            const osc= ctx.createOscillator();
+            const g= ctx.createGain();
+            osc.type= 'sine';
+            osc.frequency.value= freqs[i];
+            g.gain.setValueAtTime(0.25, now()+ t);
+            g.gain.exponentialRampToValueAtTime(0.001, now() + 0.4);
+            osc.connect(g);
+            g.connect(masterGain);
+            osc.start(now() + t);
+            osc.stop(now()+ t+ 0.45);
+        });
+    }
+
+    function stopAll(){
+        stopDrone();
+        stopStatic();
+        stopheartbeat();
+        stopBreathing();
+        try{masterGain.gain.setTargetAtTime(0, now(), 0.3); }catch(e) {}
+        setTimeout(()=> {
+            try{masterGain.gain.value= 1.0;} catch(e) {}
+        }, 500);
+    }
+
+    return{
+        init,
+        resume,
+        static: static_,
+        stopStatic,
+        staticBurst,
+        staticSweep,
+        drone,
+        stopDrone,
+        subBass,
+        heartbeat,
+        startHeartbeat,
+        stopHeartbeat,
+        numberBeep,
+        breatheIn,
+        breatheOut,
+        startBreathing,
+        stopBreathing,
+        shriek,
+        signalLock,
+        stopAll,
+    };
+})();
