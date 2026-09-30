@@ -124,7 +124,7 @@
         };
 
         tunerThumb.addEventListener('mousedown', e=> {isDragging= true; e.preventDefault();});
-        tunerThumb.addEventListener('touchstart', e => onMove(e.touches[0].clientX), {passive: true});
+        tunerThumb.addEventListener('touchstart', e =>{isDragging= true; }, {passive: true});
 
         document.addEventListener('mousemove', e => onMove(e.clientX));
         document.addEventListener('touchmove', e => onMove(e.touches[0].clientX), {passive: true});
