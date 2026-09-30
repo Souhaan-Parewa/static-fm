@@ -1,5 +1,7 @@
 # OFF THE AIR 
 
+<img width="2559" height="1326" alt="Screenshot 2026-09-30 182753" src="https://github.com/user-attachments/assets/8456daaa-a533-4003-bd8b-4be5c39f074a" />
+
 ## about it
 
 you see a radio which is at radio frequency - 87.3 and it is just static.
